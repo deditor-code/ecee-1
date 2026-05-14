@@ -34,6 +34,8 @@ const packages = [
 
 export default function Booking() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -50,10 +52,27 @@ export default function Booking() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, this would send to a backend API
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await fetch('https://formspree.io/f/mbdwwobz', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await response.json();
+        setSubmitError(data?.errors?.[0]?.message ?? 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setSubmitError('Network error. Please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -74,7 +93,7 @@ export default function Booking() {
             </a>
           </div>
           <button
-            onClick={() => setSubmitted(false)}
+            onClick={() => { setSubmitted(false); setSubmitError(null); }}
             className="px-6 py-2.5 border border-white/20 text-white font-bold rounded-full hover:border-neon hover:text-neon transition-all"
           >
             Submit Another Request
@@ -297,15 +316,19 @@ export default function Booking() {
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 bg-neon text-black font-bold rounded-full hover:bg-neon-light hover:shadow-[0_0_30px_rgba(0,255,65,0.4)] transition-all duration-300"
+                disabled={submitting}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 bg-neon text-black font-bold rounded-full hover:bg-neon-light hover:shadow-[0_0_30px_rgba(0,255,65,0.4)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Send size={16} />
-                Submit Booking Request
+                {submitting ? 'Sending...' : 'Submit Booking Request'}
               </button>
               <p className="text-white/30 text-xs">
                 We'll respond within 24-48 hours
               </p>
             </div>
+            {submitError && (
+              <p className="mt-4 text-red-400 text-sm text-center">{submitError}</p>
+            )}
           </form>
         </div>
       </section>

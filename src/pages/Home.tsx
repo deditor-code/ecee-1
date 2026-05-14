@@ -269,6 +269,32 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* YouTube Video Section */}
+      <section className="py-20 bg-black">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-5xl font-black mb-4">
+            Watch <span className="text-neon">ECEE</span>
+          </h2>
+          <p className="text-white/50 mb-10 max-w-lg mx-auto">
+            Experience the visuals. Watch the latest from ECEE on YouTube.
+          </p>
+          <div className="relative rounded-2xl overflow-hidden border border-white/10">
+            <div className="absolute -inset-4 bg-gradient-to-r from-neon/5 to-transparent rounded-3xl blur-2xl pointer-events-none" />
+            <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/6lFG5vwJsDU?si=4IKoedWhr1L9gjPD"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              className="w-full aspect-video"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

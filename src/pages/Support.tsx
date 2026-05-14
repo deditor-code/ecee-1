@@ -15,9 +15,13 @@ declare global {
   }
 }
 
+const FLUTTERWAVE_PUBLIC_KEY = 'FLWPUBK_TEST-4c343eb90a6015f93634f708820215a4-X';
+
 export default function Support() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(25);
   const [customAmount, setCustomAmount] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
 
   const handleDonate = () => {
     const amount = customAmount ? parseFloat(customAmount) : selectedAmount;
@@ -25,26 +29,30 @@ export default function Support() {
 
     if (window.FlutterwaveCheckout) {
       window.FlutterwaveCheckout({
-        public_key: 'FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxxxx', // Replace with ECEE's actual Flutterwave public key
+        public_key: FLUTTERWAVE_PUBLIC_KEY,
         tx_ref: `ECEE-support-${Date.now()}`,
         amount: amount,
         currency: 'USD',
         payment_options: 'card,banktransfer,ussd,mobilemoney,mpesa',
-        redirect_url: window.location.href,
         customer: {
-          name: 'ECEE Supporter',
+          email: email || 'supporter@ecee.music',
+          name: name || 'ECEE Supporter',
         },
         customizations: {
           title: 'Support ECEE Music',
           description: `Support ECEE with $${amount}`,
-          logo: '/images/hero-bg.jpg',
+          logo: 'https://ecee.music/images/hero-bg.jpg',
         },
+        callback: (response: Record<string, unknown>) => {
+          if (response.status === 'successful') {
+            window.location.href = window.location.pathname + '?payment=success';
+          }
+        },
+        onclose: () => {},
       });
     } else {
-      // Fallback: redirect to Flutterwave payment link or show message
       alert(
-        'Payment gateway is loading. Please ensure you have a stable internet connection and try again. ' +
-        'Alternatively, you can send support directly to eceemusicug@gmail.com via PayPal or bank transfer.'
+        'Payment gateway is still loading. Please wait a moment and try again.'
       );
     }
   };
@@ -126,7 +134,7 @@ export default function Support() {
               </div>
 
               {/* Custom Amount */}
-              <div className="relative mb-8">
+              <div className="relative mb-6">
                 <DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                 <input
                   type="number"
@@ -138,6 +146,24 @@ export default function Support() {
                   }}
                   placeholder="Enter custom amount"
                   className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-neon focus:ring-1 focus:ring-neon/30 transition-all text-lg"
+                />
+              </div>
+
+              {/* Donor Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name (optional)"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-neon focus:ring-1 focus:ring-neon/30 transition-all"
+                />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email for receipt (optional)"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-neon focus:ring-1 focus:ring-neon/30 transition-all"
                 />
               </div>
 
